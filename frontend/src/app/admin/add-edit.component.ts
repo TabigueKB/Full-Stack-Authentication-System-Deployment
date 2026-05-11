@@ -41,6 +41,7 @@ export class AddEditComponent implements OnInit {
                 .pipe(first())
                 .subscribe(x => {
                     this.form.patchValue(x);
+                    this.form.get('email')?.disable();
                 });
         }
     }
@@ -83,7 +84,8 @@ export class AddEditComponent implements OnInit {
     }
 
     private updateAccount() {
-        this.accountService.update(this.id!, this.form.value)
+        const params = this.form.getRawValue();
+        this.accountService.update(this.id!, params)
             .pipe(first())
             .subscribe({
                 next: () => {
