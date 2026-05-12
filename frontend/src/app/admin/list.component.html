@@ -25,10 +25,16 @@
                     </button>
                 </td>
             </tr>
-            <tr *ngIf="!accounts.length">
-                <td colspan="4" class="text-center">
+                <tr *ngIf="loading">
+                    <td colspan="4" class="text-center">
                     <span class="spinner-border spinner-border-lg align-center"></span>
                 </td>
+            </tr>
+                <tr *ngIf="!loading && !accounts.length">
+                     <td colspan="4" class="text-center">No accounts found.</td>
+            </tr>
+                <tr *ngIf="error">
+    <td colspan="4" class="text-center text-danger">Error: {{ error }}</td>
             </tr>
         </tbody>
     </table>

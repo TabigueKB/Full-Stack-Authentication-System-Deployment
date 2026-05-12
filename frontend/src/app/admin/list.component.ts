@@ -1,19 +1,32 @@
 import { Component, OnInit } from '@angular/core';
-import { first } from 'rxjs/operators';
+import { first, filter, switchMap } from 'rxjs/operators';
 
 import { AccountService } from '@app/_services';
-import { Account } from '@app/_models';
 
 @Component({ templateUrl: 'list.component.html', standalone: false })
 export class ListComponent implements OnInit {
     accounts: any[] = [];
+    loading = true;
+    error = '';
 
     constructor(private accountService: AccountService) { }
 
     ngOnInit() {
-        this.accountService.getAll()
-            .pipe(first())
-            .subscribe(accounts => this.accounts = accounts);
+        // Wait until account (with JWT token) is available before fetching
+        this.accountService.account.pipe(
+            filter(account => !!account?.jwtToken),
+            first(),
+            switchMap(() => this.accountService.getAll())
+        ).subscribe({
+            next: accounts => {
+                this.accounts = accounts;
+                this.loading = false;
+            },
+            error: err => {
+                this.error = err?.message || 'Failed to load accounts';
+                this.loading = false;
+            }
+        });
     }
 
     deleteAccount(id: number) {
