@@ -72,7 +72,9 @@ export class AccountService {
     }
 
     getAll() {
-        return this.http.get<Account[]>(baseUrl);
+    return this.http.get<Account[]>(baseUrl, {
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+    });
     }
 
     getById(id: number) {

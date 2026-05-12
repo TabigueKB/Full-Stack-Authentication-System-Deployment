@@ -19,22 +19,17 @@
                 <td>{{ account.role }}</td>
                 <td class="text-end">
                     <a routerLink="edit/{{ account.id }}" class="btn btn-sm btn-primary me-1">Edit</a>
-                    <button (click)="deleteAccount(account.id)" class="btn btn-sm btn-danger btn-delete-account" [disabled]="account.isDeleting">
+                    <button (click)="deleteAccount(account.id)" class="btn btn-sm btn-danger" [disabled]="account.isDeleting">
                         <span *ngIf="account.isDeleting" class="spinner-border spinner-border-sm"></span>
                         <span *ngIf="!account.isDeleting">Delete</span>
                     </button>
                 </td>
             </tr>
-                <tr *ngIf="loading">
-                    <td colspan="4" class="text-center">
-                    <span class="spinner-border spinner-border-lg align-center"></span>
-                </td>
+            <tr *ngIf="accounts.length === 0 && !error">
+                <td colspan="4" class="text-center">Loading accounts...</td>
             </tr>
-                <tr *ngIf="!loading && !accounts.length">
-                     <td colspan="4" class="text-center">No accounts found.</td>
-            </tr>
-                <tr *ngIf="error">
-    <td colspan="4" class="text-center text-danger">Error: {{ error }}</td>
+            <tr *ngIf="error">
+                <td colspan="4" class="text-center text-danger">{{ error }}</td>
             </tr>
         </tbody>
     </table>
