@@ -36,29 +36,35 @@ export class RegisterComponent implements OnInit {
     get f() { return this.form.controls; }
 
     onSubmit() {
-        this.submitted = true;
+    this.submitted = true;
+    this.alertService.clear();
 
-        // Reset alerts on submit
-        this.alertService.clear();
+    if (this.form.invalid) {
+        return;
+    }
 
-        // Stop here if form is invalid
-        if (this.form.invalid) {
-            return;
-        }
+    this.loading = true;
 
-        this.loading = true;
-        this.accountService.register(this.form.value)
-            .pipe(first())
-            .subscribe({
-                next: () => {
-                    this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
-                    this.router.navigate(['../login'], { relativeTo: this.route });
-                },
-                error: error => {
-                    this.alertService.error(error);
-                    this.loading = false;
-                }
-            });
+    // Set a 15 second timeout in case email sending is slow
+    const timeout = setTimeout(() => {
+        this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
+        this.router.navigate(['../login'], { relativeTo: this.route });
+    }, 15000);
+
+    this.accountService.register(this.form.value)
+        .pipe(first())
+        .subscribe({
+            next: () => {
+                clearTimeout(timeout);
+                this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
+                this.router.navigate(['../login'], { relativeTo: this.route });
+            },
+            error: error => {
+                clearTimeout(timeout);
+                this.alertService.error(error);
+                this.loading = false;
+            }
+        });
     }
 
     // Custom validator to check that two fields match

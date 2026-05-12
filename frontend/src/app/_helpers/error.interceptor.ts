@@ -19,7 +19,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                 return this.handle401Error(request, next);
             }
 
-            const error = (err && err.error && err.error.message) || err.statusText;
+            const error = (err && err.error && err.error.message) || err.message || err.statusText || 'An error occurred';
             console.error(err);
             return throwError(() => error);
         }));

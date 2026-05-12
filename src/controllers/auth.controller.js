@@ -145,8 +145,11 @@ async function authenticate(req, res, next) {
         // Get account with password hash
         const account = await db.Account.scope('withHash').findOne({ where: { email } });
 
-        if (!account || !account.isVerified() || !(await bcrypt.compare(password, account.passwordHash))) {
-            throw new Error('Email or password is incorrect');
+        if (!account || !(await bcrypt.compare(password, account.passwordHash))) {
+        throw new Error('Email or password is incorrect');
+        }
+        if (!account.isVerified()) {
+        throw new Error('Account not verified. Please check your email for verification instructions.');
         }
 
         // Authentication successful — generate JWT and refresh token
