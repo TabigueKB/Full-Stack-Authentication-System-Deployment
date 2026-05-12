@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="mb-3 col">
                     <label class="form-label">Email</label>
-                    <input type="text" formControlName="email" class="form-control" [disabled]="id" [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" />
+                    <input type="text" formControlName="email" class="form-control" [disabled]="!!id" [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" />
                     <div *ngIf="id" class="form-text">Email cannot be changed for existing accounts.</div>
                     <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
                         <div *ngIf="f['email'].errors['required']">Email is required</div>
