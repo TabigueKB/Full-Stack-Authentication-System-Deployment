@@ -1,4 +1,6 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/auth-system-frontend/browser",
   "rewrites": [
     {
       "source": "/(.*)",
