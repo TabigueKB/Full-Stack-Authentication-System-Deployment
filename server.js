@@ -13,7 +13,14 @@ app.use(cookieParser());
 
 // CORS — configurable origin from .env
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    origin: function(origin, callback) {
+        const allowed = (process.env.CORS_ORIGIN || 'http://localhost:4200').split(',').map(o => o.trim());
+        if (!origin || allowed.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 

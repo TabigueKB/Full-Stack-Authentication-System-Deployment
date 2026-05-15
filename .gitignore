@@ -24,3 +24,5 @@ npm-debug.log*
 # Misc
 /tmp
 /out-tsc
+.vercel
+.env*.local

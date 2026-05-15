@@ -6,5 +6,5 @@ export function appInitializer(accountService: AccountService) {
         accountService.refreshToken()
             .subscribe()
             .add(resolve);
-    });
+    }).catch(() => Promise.resolve());
 }
