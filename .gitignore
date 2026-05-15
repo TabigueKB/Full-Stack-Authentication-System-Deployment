@@ -5,8 +5,6 @@ node_modules/
 .env
 
 # Build output
-dist/
-/frontend/dist
 .angular/
 
 # IDE
