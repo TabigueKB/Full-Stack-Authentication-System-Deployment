@@ -4,7 +4,7 @@ A full-stack authentication system built with **Node.js/Express** (backend), **A
 
 ## 🌐 Live Demo
 
-- **Frontend:** https://gorgeous-starburst-95592e.netlify.app
+- **Frontend:** https://browser-amber-five.vercel.app
 - **Backend API:** https://auth-system-backend-944b.onrender.com
 - **API Docs (Swagger):** https://auth-system-backend-944b.onrender.com/api-docs
 
@@ -14,12 +14,12 @@ A full-stack authentication system built with **Node.js/Express** (backend), **A
 
 | Layer | Technology |
 |---|---|
-| Frontend | Angular 21, Bootstrap 5 |
+| Frontend | Angular 17+, Bootstrap 5 |
 | Backend | Node.js, Express.js |
 | Database | MySQL (Sequelize ORM) |
 | Auth | JWT + Refresh Tokens |
-| Email | Resend (SMTP) |
-| Hosting | Netlify (frontend), Render (backend), Railway (database) |
+| Email | Brevo (Transactional Email) |
+| Hosting | Vercel (frontend), Render (backend), Railway (database) |
 
 ---
 
@@ -29,10 +29,10 @@ A full-stack authentication system built with **Node.js/Express** (backend), **A
 Full-Stack-Authentication-System-Deployment/
 ├── frontend/                   # Angular frontend
 │   └── src/app/
-│       ├── account/            # Login, Register, Forgot Password
+│       ├── account/            # Login, Register, Forgot Password, Verify Email
 │       ├── admin/              # Admin panel
 │       ├── home/               # Home page
-│       ├── _helpers/           # Interceptors, guards
+│       ├── _helpers/           # Interceptors, guards, app initializer
 │       ├── _models/            # TypeScript models
 │       └── _services/          # API services
 ├── src/                        # Node.js backend
@@ -89,16 +89,13 @@ DB_PASS=
 
 JWT_SECRET=your-super-secret-jwt-key-change-this
 
-EMAIL_FROM=noreply@authsystem.com
-SMTP_HOST=smtp.ethereal.email
-SMTP_PORT=587
-SMTP_USER=your_smtp_user
-SMTP_PASS=your_smtp_password
+EMAIL_FROM=your-verified-sender@yourdomain.com
+BREVO_API_KEY=your-brevo-api-key
 
 CORS_ORIGIN=http://localhost:4200
 ```
 
-> 💡 For local testing, get free SMTP credentials at [ethereal.email](https://ethereal.email)
+> 💡 Get a free Brevo account at [brevo.com](https://brevo.com) and generate an API key under **SMTP & API → API Keys**
 
 ### 4. Install backend dependencies and start the server
 
@@ -127,7 +124,7 @@ The frontend will run at `http://localhost:4200`
 ### Backend → Render
 
 1. Push your code to GitHub
-2. Go to [render.com](https://render.com) → **New → Blueprint**
+2. Go to [render.com](https://render.com) → **New → Web Service**
 3. Connect your GitHub repository
 4. Fill in the environment variables in Render dashboard:
 
@@ -139,12 +136,9 @@ The frontend will run at `http://localhost:4200`
 | `DB_USER` | Your Railway MySQL user |
 | `DB_PASS` | Your Railway MySQL password |
 | `JWT_SECRET` | A random secret string |
-| `SMTP_HOST` | `smtp.resend.com` |
-| `SMTP_PORT` | `465` |
-| `SMTP_USER` | `resend` |
-| `SMTP_PASS` | Your Resend API key |
-| `EMAIL_FROM` | `onboarding@resend.dev` |
-| `CORS_ORIGIN` | Your Netlify frontend URL |
+| `BREVO_API_KEY` | Your Brevo API key |
+| `EMAIL_FROM` | Your verified Brevo sender email |
+| `CORS_ORIGIN` | Your Vercel frontend URL (e.g. `https://browser-amber-five.vercel.app`) |
 | `NODE_ENV` | `production` |
 
 ### Database → Railway
@@ -153,7 +147,7 @@ The frontend will run at `http://localhost:4200`
 2. Go to **Settings → Networking** → enable **Public Networking**
 3. Copy the public host and port for Render environment variables
 
-### Frontend → Netlify
+### Frontend → Vercel (via CLI)
 
 1. Update `frontend/src/environments/environment.prod.ts`:
 ```typescript
@@ -166,10 +160,29 @@ export const environment = {
 2. Build the frontend:
 ```bash
 cd frontend
-ng build --configuration production
+ng build
 ```
 
-3. Go to [netlify.com](https://netlify.com) → drag and drop the `dist/auth-system-frontend/browser` folder
+3. Add `<base href="/">` inside the `<head>` tag of `dist/auth-system-frontend/browser/index.html`
+
+4. Create a `vercel.json` inside `dist/auth-system-frontend/browser/`:
+```json
+{
+    "routes": [
+        { "src": "^/[^.]+", "dest": "/index.html" },
+        { "src": "^/(.+\\.js)$", "dest": "/$1" },
+        { "src": "^/(.+\\.css)$", "dest": "/$1" }
+    ]
+}
+```
+
+5. Deploy using Vercel CLI:
+```bash
+cd dist/auth-system-frontend/browser
+npx vercel --prod
+```
+
+> ⚠️ **Important:** Disconnect GitHub auto-deploy in Vercel project settings to prevent automatic deployments from overwriting your manual deployment. Go to **Settings → Git → Disconnect Git Repository**.
 
 ---
 
@@ -187,7 +200,7 @@ ng build --configuration production
 
 ## 👤 Default Test Accounts
 
-After deploying, manually verify accounts in the database:
+After deploying, manually set accounts in the database:
 
 ```sql
 -- Verify and set as Admin
@@ -223,7 +236,7 @@ Render's free plan sleeps after 15 minutes of inactivity. To keep it awake:
 
 1. Sign up at [uptimerobot.com](https://uptimerobot.com)
 2. Add new monitor → HTTP(s)
-3. URL: `https://your-backend.onrender.com/health`
+3. URL: `https://auth-system-backend-944b.onrender.com/health`
 4. Interval: **5 minutes**
 
 ---
