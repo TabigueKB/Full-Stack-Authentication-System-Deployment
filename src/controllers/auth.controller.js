@@ -96,25 +96,23 @@ async function register(req, res, next) {
         }
 
         // Create account
-        const account = new db.Account(req.body);
-
-        // Hash password
-        account.passwordHash = await bcrypt.hash(req.body.password, 10);
-
-        // Generate verification token
-        account.verificationToken = randomTokenString();
-        account.created = new Date();
-        account.role = 'User';
-
-        // Save account
-        await account.save();
+    const verificationToken = randomTokenString();
+    const account = await db.Account.create({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    passwordHash: await bcrypt.hash(req.body.password, 10),
+    verificationToken: verificationToken,
+    created: new Date(),
+    role: 'User'
+});
 
         // Send verification email
         await sendVerificationEmail(account, req.get('origin'));
 
-        res.json({
-            message: 'Registration successful, please check your email for verification instructions'
-        });
+res.json({
+    message: 'Registration successful, please check your email for verification instructions'
+});
     } catch (err) {
         next(err);
     }
