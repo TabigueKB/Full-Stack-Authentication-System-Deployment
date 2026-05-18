@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -25,7 +25,8 @@ export class ResetPasswordComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -38,7 +39,6 @@ export class ResetPasswordComponent implements OnInit {
 
         this.token = this.route.snapshot.queryParams['token'];
 
-        // Remove token from URL
         this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
 
         this.accountService.validateResetToken(this.token)
@@ -46,26 +46,22 @@ export class ResetPasswordComponent implements OnInit {
             .subscribe({
                 next: () => {
                     this.tokenStatus = TokenStatus.Valid;
+                    this.cdr.detectChanges();
                 },
                 error: () => {
                     this.tokenStatus = TokenStatus.Invalid;
+                    this.cdr.detectChanges();
                 }
             });
     }
 
-    // Convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
-
-        // Reset alerts on submit
         this.alertService.clear();
 
-        // Stop here if form is invalid
-        if (this.form.invalid) {
-            return;
-        }
+        if (this.form.invalid) return;
 
         this.loading = true;
         this.accountService.resetPassword(this.token, this.f['password'].value, this.f['confirmPassword'].value)
@@ -82,7 +78,6 @@ export class ResetPasswordComponent implements OnInit {
             });
     }
 
-    // Custom validator to check that two fields match
     mustMatch(controlName: string, matchingControlName: string) {
         return (group: AbstractControl) => {
             const control = group.get(controlName);

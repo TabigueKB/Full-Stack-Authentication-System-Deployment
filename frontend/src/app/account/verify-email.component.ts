@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -19,13 +19,13 @@ export class VerifyEmailComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
         const token = this.route.snapshot.queryParams['token'];
 
-        // Remove token from URL to prevent http referer leakage
         this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
 
         this.accountService.verifyEmail(token)
@@ -34,9 +34,11 @@ export class VerifyEmailComponent implements OnInit {
                 next: () => {
                     this.alertService.success('Verification successful, you can now login', { keepAfterRouteChange: true });
                     this.emailStatus = EmailStatus.Success;
+                    this.cdr.detectChanges();
                 },
                 error: () => {
                     this.emailStatus = EmailStatus.Failed;
+                    this.cdr.detectChanges();
                 }
             });
     }
